@@ -1,0 +1,12 @@
+{
+  "catalogID": "catalog_20260921T110209Z",
+  "catalogIconCount": 424,
+  "catalogIconsFilename": "CatalogIcons_catalog_20260921T110209Z.zip",
+  "catalogIconsSha256": "07d1006c7a4d8c60a5657946493238967f12d9ec9f89e2e4f203dab35006edd9",
+  "contentBaseURL": "https://vh3.github.io/app-inventory-content/content/",
+  "featureFlags": {},
+  "iconDetectorFilename": "IconDetector_catalog_20260921T110209Z.mlpackage.zip",
+  "iconDetectorSha256": "7dc3d10c5e416331eb9e505e6437c28498db73c3cbefc1b8a25503237cd944cc",
+  "publishedAt": "2026-09-21T11:02:09Z",
+  "schemaVersion": "1.0.0"
+}
