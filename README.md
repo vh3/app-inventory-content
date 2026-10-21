@@ -1,77 +1,69 @@
-# app-inventory-content — public recognition-data host
+# App Inventory — public site
 
-Public static content for the **iPhone App Inventory** prototype's optional
-recognition-data updates (BL-009.4/.5, DEC-025). Hosts a versioned icon
-detector Core ML model and icon catalog, published from
-`terms_of_service_monitor/screen_captures/training_pipeline/ingest/publish_catalog.py`
-(BL-009.4) after an on-demand retrain (`retrain_all.sh`, BL-009.3).
+Public GitHub Pages site for **App Inventory** (Brain Fart Games):
 
-Modeled directly on the connected `bfg-sudoku-site` sibling project's own
-shipped `config/app-config-v1.json` pattern (B063) -- same `config/` +
-`content/` split, same plain-GitHub-Pages-from-`main`-root deploy, no
-CI/CD needed for this repo itself. See PRD `iPhone_App_Inventory_PRD_v1.md`
-DEC-025 / EVID-052 for the full design writeup and how this diverges from
-that precedent (integrity hashing, explicit-only app-side pull).
+| Page | Path | Purpose |
+|---|---|---|
+| Home | [`index.html`](index.html) | Short product blurb |
+| Support | [`support.html`](support.html) | Support contact — App Store Support URL |
+| Privacy | [`privacy.html`](privacy.html) | Privacy Policy — App Store Privacy URL |
+| Terms | [`terms.html`](terms.html) | Terms of Service |
 
-**This repo holds only derived recognition artifacts — never user
-screenshots, crops, or any personal data.** The model and catalog were
-built entirely from this project's own hand-curated `screen_captures/`
-photos and synthetic training data; nothing a tester submits via the app's
-diagnostics pathway (REQ-026) is ever republished here in any form.
+**Support email:** bfgames.support@gmail.com
 
-## Layout
+The private iPhone source repository is not the public URL for those fields.
+
+## Published URLs
+
+- Home: https://vh3.github.io/app-inventory-content/
+- Support: https://vh3.github.io/app-inventory-content/support.html
+- Privacy: https://vh3.github.io/app-inventory-content/privacy.html
+- Terms: https://vh3.github.io/app-inventory-content/terms.html
+- Recognition manifest: https://vh3.github.io/app-inventory-content/config/catalog-config-v1.json
+
+## Recognition data
+
+Same layout as `bfg-sudoku-site`: a small `config/` manifest and immutable
+files under `content/`. The App downloads these only when someone taps
+**Check for updated recognition data**.
 
 | Path | Contents |
 |---|---|
-| `config/catalog-config-v1.json` | Schema-versioned manifest: `catalogID`, `publishedAt`, filenames + sha256 hashes for the current model/catalog artifacts |
-| `content/IconDetector_<catalogID>.mlpackage.zip` | The exported Core ML icon detector, zipped |
-| `content/CatalogIcons_<catalogID>.zip` | The icon catalog (PNGs + `catalog_index.json`), zipped |
+| `config/catalog-config-v1.json` | `catalogID`, `publishedAt`, filenames, sha256 |
+| `content/IconDetector_<catalogID>.mlpackage.zip` | Core ML icon detector, store-method zip |
+| `content/CatalogIcons_<catalogID>.zip` | Name index only (`catalog_index.json`) |
 
-Artifacts are immutable under their own `catalogID` — publishing a new
-version writes new files under a new ID rather than overwriting an old one,
-matching `bfg-sudoku-site`'s own "content remains immutable under stable
-IDs" convention.
+Raw third-party icon images are not published here. The catalog zip is the
+name list the manifest’s hash covers. A later publish must keep that rule.
+
+Publishing a new detector from the private project:
+
+```bash
+python3 training_pipeline/ingest/publish_catalog.py \
+  --model ios_prototype/Resources/Models/IconDetector.mlpackage \
+  --catalog ios_prototype/Resources/CatalogIcons \
+  --repo-dir /path/to/app-inventory-content \
+  --host vh3.github.io \
+  --path-prefix /app-inventory-content/
+```
+
+That script zips whatever is in the catalog directory. Before pushing,
+replace the catalog zip with the name index only if the directory still
+contains icon PNGs. Then push `main`. Pages serves the branch root. There
+is no GitHub Action.
 
 ## Enable GitHub Pages
 
 1. Repo Settings → Pages
 2. Source: Deploy from a branch
 3. Branch: `main` / `/ (root)`
-4. Save, wait for the site to become live
+4. Save
 
-Or via CLI (owner):
+Or:
 
 ```bash
-gh api -X POST repos/<owner>/app-inventory-content/pages \
+gh api -X POST repos/vh3/app-inventory-content/pages \
   -f build_type=legacy \
-  -f "source[branch]=main" \
-  -f "source[path]=/"
+  -f source[branch]=main \
+  -f source[path]=/
 ```
-
-## Publishing a new version
-
-From `terms_of_service_monitor/screen_captures/`:
-
-```bash
-python3 training_pipeline/ingest/publish_catalog.py \
-  --model ../ios_prototype/Resources/Models/IconDetector.mlpackage \
-  --catalog ../ios_prototype/Resources/CatalogIcons \
-  --repo-dir /path/to/app-inventory-content \
-  --host <owner>.github.io \
-  --path-prefix /app-inventory-content/ \
-  --git-commit
-```
-
-`--git-commit` stages and commits locally only — it never pushes (this
-session's tooling had no GitHub credentials available to do that safely;
-see the PRD's R053 diary entry). Push from your own authenticated
-terminal:
-
-```bash
-cd /path/to/app-inventory-content
-gh repo create <owner>/app-inventory-content --public --source=. --remote=origin
-git push -u origin main
-```
-
-(or create the repo first in the GitHub web UI, then `git remote add origin
-https://github.com/<owner>/app-inventory-content.git && git push -u origin main`.)
